@@ -11,11 +11,9 @@ import SwiftUI
 /// A simple and elegant page indicator with capsule dots.
 struct PageIndicator: View {
     
-    // MARK: - Properties
     let count: Int
     let scrollProgress: CGFloat
 
-    // MARK: - Visual Constants
     private let spacing: CGFloat = 8
     private let height: CGFloat = 8
     private let dotWidth: CGFloat = 8
@@ -35,7 +33,6 @@ struct PageIndicator: View {
                             width: index == currentIndex ? barWidth : dotWidth, 
                             height: height
                         )
-                        .animation(.easeInOut(duration: 0.3), value: currentIndex)
                 }
             }
             .padding(.horizontal, 8)
@@ -44,6 +41,7 @@ struct PageIndicator: View {
                 Capsule(style: .continuous)
                     .fill(.thinMaterial)
             )
+            .animation(.easeInOut(duration: 0.3), value: currentIndex)
         }
     }
 }

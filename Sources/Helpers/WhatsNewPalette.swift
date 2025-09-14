@@ -14,7 +14,12 @@ import AppKit
 // MARK: - Color Palette
 enum WhatsNewPalette {
     static let ctaBlue = Color.blue
+    
+    // Tag colors
+    static let premiumTag = Color(red: 0.9, green: 0.6, blue: 0.1) // золотистый
+    static let betaTag = Color.purple
 }
+
 
 // MARK: - Cross-platform colors
 enum WhatsNewColors {
@@ -27,5 +32,24 @@ enum WhatsNewColors {
         #else
         return Color(.sRGB, red: 1, green: 1, blue: 1, opacity: 1)
         #endif
+    }
+}
+
+@inline(__always)
+func imageForArtwork(_ a: FeatureArtwork) -> Image? {
+    switch a {
+    case .system(let name):
+        return Image(systemName: name)
+
+    case .asset(let name):
+        #if canImport(UIKit)
+        if let ui = UIImage(named: name) { return Image(uiImage: ui) }
+        #elseif canImport(AppKit)
+        if let ns = NSImage(named: NSImage.Name(name)) { return Image(nsImage: ns) }
+        #endif
+        return nil
+
+    case .none:
+        return nil
     }
 }

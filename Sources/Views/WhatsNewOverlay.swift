@@ -11,21 +11,22 @@ import SwiftUI
 /// Bottom overlay containing page indicator and call-to-action button.
 struct WhatsNewOverlay: View {
     
-    // MARK: - Properties
     let pageCount: Int
     let currentIndex: Int
     let scrollProgress: CGFloat
     let onComplete: () -> Void
 
-    // MARK: - Computed Properties
     private var isOnLastPage: Bool { 
         scrollProgress >= CGFloat(max(0, pageCount - 1)) - 0.1
     }
 
     var body: some View {
-        VStack(spacing: 12) {
-            PageIndicator(count: pageCount, scrollProgress: scrollProgress)
-                .accessibilityHidden(true)
+        VStack(spacing: 20) {
+            if pageCount > 1 {
+                PageIndicator(count: pageCount, scrollProgress: scrollProgress)
+                    .accessibilityHidden(true)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
 
             if isOnLastPage {
                 Button(action: onComplete) {
@@ -41,6 +42,7 @@ struct WhatsNewOverlay: View {
                     )
                 }
                 .transition(.move(edge: .bottom).combined(with: .opacity))
+                .padding(.top, pageCount > 1 ? 8 : 0)
             }
         }
         .animation(.spring(response: 0.5, dampingFraction: 0.85), value: isOnLastPage)

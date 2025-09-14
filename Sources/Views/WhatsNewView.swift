@@ -10,14 +10,11 @@ import SwiftUI
 
 public struct WhatsNewView: View {
     
-    // MARK: - Dependencies
     @ObservedObject private var coordinator: WhatsNewCoordinator
     
-    // MARK: - Environment
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
 
-    // MARK: - State
     @State private var currentPageIndex: Int = 0
     @State private var pageProgress: CGFloat = 0
 
@@ -25,8 +22,14 @@ public struct WhatsNewView: View {
         self.coordinator = coordinator
     }
 
+    private var totalPages: Int {
+        let fullPageFeatures = coordinator.features.filter { $0.presentationType == .fullPage }
+        let listFeatures = coordinator.features.filter { $0.presentationType == .list }
+        return fullPageFeatures.count + (listFeatures.isEmpty ? 0 : 1)
+    }
+    
     private var isLastPage: Bool { 
-        currentPageIndex == max(0, coordinator.features.count - 1) 
+        currentPageIndex == max(0, totalPages - 1) 
     }
 
     public var body: some View {
@@ -46,7 +49,7 @@ public struct WhatsNewView: View {
 
                             // Overlay: indicator + CTA button
                             WhatsNewOverlay(
-                                pageCount: coordinator.features.count,
+                                pageCount: totalPages,
                                 currentIndex: currentPageIndex,
                                 scrollProgress: pageProgress,
                                 onComplete: completeAndDismiss
@@ -78,29 +81,17 @@ public struct WhatsNewView: View {
         }
     }
 
-    // MARK: - Toolbar
     @ToolbarContentBuilder
     private var toolbar: some ToolbarContent {
-        ToolbarItem(placement: .cancellationAction) {
+        ToolbarItem(placement: .confirmationAction) {
             Button(action: completeAndDismiss) {
-                Image(systemName: "xmark").font(.body.weight(.semibold))
+                Text(isLastPage ? "Done" : "Skip")
             }
             .accessibilityLabel("Close")
             .animation(nil, value: isLastPage)
         }
-        ToolbarItem(placement: .confirmationAction) {
-            ZStack {
-                Text("Skip").opacity(isLastPage ? 0 : 1)
-                Text("Done").opacity(isLastPage ? 1 : 0)
-            }
-            .frame(minWidth: 56)
-            .contentShape(Rectangle())
-            .onTapGesture { completeAndDismiss() }
-            .animation(nil, value: isLastPage)
-        }
     }
-
-    // MARK: - Actions
+    
     private func completeAndDismiss() {
         coordinator.markLatestAsSeen()
         dismiss()
