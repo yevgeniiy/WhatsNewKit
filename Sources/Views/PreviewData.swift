@@ -104,7 +104,7 @@ public struct PreviewData {
     NavigationStack {
         WhatsNewView(
             coordinator: .init(
-                dataSource: SampleDataSource.createSampleMixed(),
+                dataSource: PreviewData.createPreviewWithTags(),
                 versionStore: UserDefaultsVersionStore()
             )
         )
@@ -116,7 +116,7 @@ public struct PreviewData {
     NavigationStack {
         WhatsNewView(
             coordinator: .init(
-                dataSource: SampleDataSource.createSampleMixed(),
+                dataSource: PreviewData.createPreviewWithTags(),
                 versionStore: UserDefaultsVersionStore()
             )
         )

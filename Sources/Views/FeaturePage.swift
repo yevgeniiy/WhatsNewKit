@@ -15,6 +15,9 @@ struct FeaturePage: View {
 
     @State private var imageLoaded = false
     @State private var contentOffset: CGFloat = 0
+    
+    @Environment(\.colorScheme) private var colorScheme
+
 
     var body: some View {
         ScrollView(showsIndicators: false) {
@@ -88,8 +91,7 @@ struct FeaturePage: View {
         switch feature.artwork {
         case .asset(let name):
             if let loaded = loadAppAsset(name) {
-                let aspect = max(loaded.size.width, 1) / max(loaded.size.height, 1) // w/h
-                // базовая высота = capH; если ширина не помещается, уменьшаем высоту
+                let aspect = max(loaded.size.width, 1) / max(loaded.size.height, 1)
                 let baseW = capH * aspect
                 let finalH = baseW > availW ? (availW / aspect) : capH
                 let finalW = finalH * aspect
@@ -97,38 +99,31 @@ struct FeaturePage: View {
                 loaded.image
                     .resizable()
                     .interpolation(.high)
-                    .frame(width: finalW, height: finalH) // ← не тянем на весь экран
+                    .frame(width: finalW, height: finalH)
                     .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 20, style: .continuous)
-                            .strokeBorder(
-                                LinearGradient(
-                                    colors: [Color.white.opacity(0.3), .clear],
-                                    startPoint: .topLeading, endPoint: .bottomTrailing
-                                ),
-                                lineWidth: 1
-                            )
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 20, style: .continuous)
-                            .strokeBorder(.separator.opacity(0.4), lineWidth: 0.75)
-                    )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        .strokeBorder(
+                            colorScheme == .dark ? Color.white.opacity(0.14) : Color.black.opacity(0.10),
+                            lineWidth: 0.75
+                        )
+                )
+
                     .shadow(color: .black.opacity(0.15), radius: 20, x: 0, y: 10)
                     .scaleEffect(imageLoaded ? 1 : 0.95)
                     .opacity(imageLoaded ? 1 : 0)
                     .onAppear {
                         withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) { imageLoaded = true }
                     }
-                    .frame(maxWidth: .infinity) // центрируем контейнер
+                    .frame(maxWidth: .infinity)
                     .padding(.horizontal, padding)
             } else {
                 placeholderView(capH: capH, availW: availW, padding: padding)
             }
 
         case .system(let symbol):
-            // Крупный SF Symbol без фона
             let finalH = capH
-            let finalW = min(availW, finalH * (9.0/16.0)) // узкая карточка под символ
+            let finalW = min(availW, finalH * (9.0/16.0))
             Image(systemName: symbol)
                 .font(.system(size: min(finalW, finalH) * 0.4, weight: .semibold))
                 .foregroundStyle(WhatsNewPalette.ctaBlue)
@@ -161,7 +156,10 @@ struct FeaturePage: View {
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 20, style: .continuous)
-                    .stroke(.separator.opacity(0.3), lineWidth: 1)
+                    .stroke(
+                        colorScheme == .dark ? Color.white.opacity(0.14) : Color.black.opacity(0.10),
+                        lineWidth: 0.75
+                    )
             )
             .frame(width: finalW, height: finalH)
             .frame(maxWidth: .infinity)
